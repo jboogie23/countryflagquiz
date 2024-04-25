@@ -1,0 +1,100 @@
+<script>
+	import '../app.css';
+	import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
+	polyfillCountryFlagEmojis();
+	import { onMount } from 'svelte';
+
+	// Array of questions and answers
+	const questions = [
+		{
+			question: '🇯🇵',
+			answers: ['Switzerland', 'London', 'Berlin', 'Madrid'],
+			correctAnswer: 0
+		},
+		{
+			question: 'What is the largest ocean on Earth?',
+			answers: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'],
+			correctAnswer: 3
+		}
+		// Add more questions here...
+	];
+
+	let currentQuestion = 0;
+	let score = 0;
+	let selectedAnswer = -1;
+
+	// Shuffle the questions
+	$: shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+
+	// Handle user's answer
+	function handleAnswer(index) {
+		selectedAnswer = index;
+		if (index === shuffledQuestions[currentQuestion].correctAnswer) {
+			score++;
+		}
+		currentQuestion++;
+		selectedAnswer = -1;
+	}
+
+	// Reset the quiz
+	function resetQuiz() {
+		currentQuestion = 0;
+		score = 0;
+		selectedAnswer = -1;
+	}
+</script>
+
+<main>
+	{#if currentQuestion < shuffledQuestions.length}
+		<h2 class="question">{shuffledQuestions[currentQuestion].question}</h2>
+		<div class="answers">
+			{#each shuffledQuestions[currentQuestion].answers as answer, index}
+				<button
+					class:selected={selectedAnswer === index}
+					class:correct={selectedAnswer === index &&
+						index === shuffledQuestions[currentQuestion].correctAnswer}
+					on:click={() => handleAnswer(index)}
+				>
+					{answer}
+				</button>
+			{/each}
+		</div>
+	{:else}
+		<h2>Quiz Completed!</h2>
+		<p>Your score: {score} / {shuffledQuestions.length}</p>
+		<button on:click={resetQuiz}>Play Again</button>
+	{/if}
+</main>
+
+<style>
+	.question {
+		font-size: 12rem;
+		text-align: center;
+	}
+	.answers {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+	}
+
+	button {
+		background-color: #f1f1f1;
+		border: none;
+		padding: 1rem;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		cursor: pointer;
+	}
+
+	button.selected {
+		background-color: #4caf50;
+		color: white;
+	}
+
+	button.correct {
+		background-color: #4caf50;
+		color: white;
+	}
+</style>
